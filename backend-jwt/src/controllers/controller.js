@@ -3,36 +3,30 @@ import { generarJwt } from "../helpers/generar-jwt.js";
 
 export async function login(req, res) {
   const { username, password } = req.body;
-  
+
   try {
-    // Conexión a la base de datos
     const conexion = await newConnection();
-    
-    // Consulta a la base de datos
+
     const [usuario] = await conexion.query(
       "SELECT * FROM users WHERE username = ? AND password = ?",
       [username, password]
     );
 
-    const user = usuario[0]; // Tomamos el primer usuario encontrado
+    const user = usuario[0];
 
-    // Validación de usuario
     if (!user) {
       return res.status(401).json({ message: "Credenciales incorrectas" });
     }
 
-    // Generar token JWT de forma asíncrona
     const token = await generarJwt(usuario[0].id);
 
-    // Almacenar el token en la sesión del servidor
-    console.log(req.session)
+    console.log(req.session);
     req.session.token = token;
 
-    // Almacenar el token en una cookie segura
     res.cookie("authToken", token, {
-      httpOnly: true, // La cookie no es accesible desde JavaScript
-      secure: false, // Cambiar a true en producción con HTTPS
-      maxAge: 3600000, // Expiración en milisegundos (1 hora)
+      httpOnly: true,
+      secure: false,
+      maxAge: 3600000,
     });
 
     return res.json({ message: "Inicio de sesión exitoso" });
@@ -42,21 +36,23 @@ export async function login(req, res) {
   }
 }
 
-export async function register(req, res){
-  const {username, password} = req.body
-  const conexion = await newConnection()
+export async function register(req, res) {
+  const { username, password } = req.body;
+  const conexion = await newConnection();
   try {
-    const nuevoUsuario = await conexion.query("INSERT INTO users (username, password) VALUES (?, ?)", [username, password])
-    
-    if(!nuevoUsuario){
-      res.json({msg: "Error al crear el usuario"})
+    const nuevoUsuario = await conexion.query(
+      "INSERT INTO users (username, password) VALUES (?, ?)",
+      [username, password]
+    );
+
+    if (!nuevoUsuario) {
+      res.json({ msg: "Error al crear el usuario" });
     } else {
-      res.json(nuevoUsuario)
+      res.json(nuevoUsuario);
     }
   } catch (error) {
-    console.log("Error al crear el nuevo usuario")
+    console.log("Error al crear el nuevo usuario");
   }
-
 }
 
 export function session(req, res) {
