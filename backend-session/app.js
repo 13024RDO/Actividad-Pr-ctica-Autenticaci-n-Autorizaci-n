@@ -4,7 +4,8 @@ import express from 'express';
 import session from 'express-session';
 import morgan from 'morgan';
 import path from 'path';
-import { variablesBd } from './src/config/config.js';
+import { SECRET_KEY } from './src/config/env.js';
+import { PORT } from './src/config/env.js';
 import { sessionRoutes } from './src/routes/routes.js';
 
 const app = express();
@@ -23,7 +24,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: variablesBd.SECRET_SESSION,
+    secret: SECRET_KEY,
     resave: false,
     saveUninitialized: true,
     cookie: { 
@@ -34,4 +35,4 @@ app.use(session({
 }));
 app.use(sessionRoutes)
 
-app.listen(variablesBd.PORT, () => console.log(`Server running on http://localhost:${variablesBd.PORT}/`));
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}/`));
